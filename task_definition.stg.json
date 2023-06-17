@@ -1,0 +1,68 @@
+{
+  "executionRoleArn": "arn:aws:iam::264721266761:role/invo-stg-app-20230619153524816200000002",
+  "family": "invo",
+  "networkMode": "awsvpc",
+  "cpu": "256",
+  "memory": "512",
+  "requiresCompatibilities": [
+    "EC2"
+  ],
+  "containerDefinitions": [
+    {
+      "name": "invo",
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "hostPort": 80,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true,
+      "environment": [
+        {
+          "name": "DB_ADAPTER",
+          "value": "Mysql"
+        },
+        {
+          "name": "DB_HOST",
+          "value": "invo-stg.c0klqo7uzhbv.eu-central-1.rds.amazonaws.com:3306"
+        },
+        {
+          "name": "DB_USERNAME",
+          "value": "phalcon"
+        },
+        {
+          "name": "DB_DBNAME",
+          "value": "phalcon_invo"
+        },
+        {
+          "name": "DB_CHARSET",
+          "value": "utf8"
+        },
+        {
+          "name": "VIEWS_DIR",
+          "value": "themes/invo/"
+        },
+        {
+          "name": "BASE_URI",
+          "value": "/"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "DB_PASSWORD",
+          "valueFrom": "arn:aws:secretsmanager:eu-central-1:264721266761:secret:/invo-stg/invo/db_master_password-8lL3E7"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-create-group": "true",
+          "awslogs-group": "/aws/ecs/invo-stg-app",
+          "awslogs-region": "eu-central-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}

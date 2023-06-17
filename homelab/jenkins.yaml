@@ -1,0 +1,55 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: jenkins
+  namespace: argocd
+spec:
+  project: "spinnaker"
+  source:
+    repoURL: https://charts.jenkins.io
+    targetRevision: 4.3.28
+    chart: jenkins
+    helm:
+      releaseName: jenkins
+      values: |-
+        controller:
+          tag: "2.410-jdk11"
+          additionalPlugins:
+            - strict-crumb-issuer:2.1.1
+          additionalSecrets:
+          - name: gitea_ssh_private_key
+            value: |
+              <put-key-your-ssh-private-key>
+          JCasC:
+            security:
+              gitHostKeyVerificationConfiguration:
+                sshHostKeyVerificationStrategy: "noHostKeyVerificationStrategy"
+            configScripts:
+              welcome-message: |
+                jenkins:
+                  systemMessage: Welcome to our CI\CD server. This Jenkins is configured and managed 'as code'.
+              jenkins-casc-configs: |
+                credentials:
+                  system:
+                    domainCredentials:
+                      - credentials:
+                          - basicSSHUserPrivateKey:
+                              scope: GLOBAL
+                              id: gitea_ssh_private_key
+                              username: git
+                              description: "SSH with private key file for Gitea. Private key provided"
+                              privateKeySource:
+                                directEntry:
+                                  privateKey: |
+                                    ${gitea_ssh_private_key}
+        persistence:
+          enabled: true
+          storageClass: "vsphere-iscsi"
+          size: 10Gi
+  destination:
+    name: "mgmt"
+    namespace: "jenkins"
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true

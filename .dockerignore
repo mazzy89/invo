@@ -1,0 +1,6 @@
+.github
+terraform
+
+Jenkinsfile
+README.md
+task_definition.*.json
