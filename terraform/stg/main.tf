@@ -1,0 +1,18 @@
+provider "aws" {
+  region = var.region
+
+  default_tags {
+    tags = {
+      Environment = "stg"
+    }
+  }
+}
+
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.3"
+    }
+  }
+}

@@ -6,7 +6,7 @@ LABEL vendor="Phalcon" \
       description="The PHP image to test Invo example concepts"
 
 ENV PHALCON_VERSION="5.1.4" \
-    PHP_VERSION="8.1"
+      PHP_VERSION="8.1"
 
 ADD ./extra.ini /usr/local/etc/php/conf.d/
 ADD . /code
@@ -15,15 +15,15 @@ WORKDIR /code
 
 # Update
 RUN apt update -y && \
-    apt install -y \
-        apt-utils \
-        gettext \
-        git \
-        libzip-dev \
-        nano \
-        sudo \
-        wget \
-        zip
+      apt install -y \
+      apt-utils \
+      gettext \
+      git \
+      libzip-dev \
+      nano \
+      sudo \
+      wget \
+      zip
 
 # PECL Packages
 RUN pecl install phalcon-${PHALCON_VERSION}  \
@@ -43,23 +43,26 @@ RUN docker-php-ext-enable \
 
 # Cleanup
 RUN apt autoremove -y \
-    && apt autoclean -y \
-    && apt clean -y \
-    && rm -rf /tmp/* /var/tmp/* \
-    && find /var/cache/apt/archives /var/lib/apt/lists /var/cache \
-       -not -name lock \
-       -type f \
-       -delete \
-    && find /var/log -type f | while read f; do echo -n '' > ${f}; done
+      && apt autoclean -y \
+      && apt clean -y \
+      && rm -rf /tmp/* /var/tmp/* \
+      && find /var/cache/apt/archives /var/lib/apt/lists /var/cache \
+      -not -name lock \
+      -type f \
+      -delete \
+      && find /var/log -type f | while read f; do echo -n '' > ${f}; done
 
-RUN php -m | grep -i "opcache\|mysql\|phalcon\||pdo\|mbstring"
-#    && mv /code/.env.example /code/.env
+RUN php -m | grep -i "opcache\|mysql\|phalcon\||pdo\|mbstring" \
+      && mv /code/.env.example /code/.env
 
 # Composer
 COPY --from=composer /usr/bin/composer /usr/local/bin/composer
 # Bash script with helper aliases
 COPY ./.bashrc /root/.bashrc
 COPY ./.bashrc /home/phalcon/.bashrc
+
+RUN composer validate \
+      && composer install --prefer-dist --no-progress --no-suggest
 
 EXPOSE 80
 
