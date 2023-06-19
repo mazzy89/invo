@@ -25,20 +25,18 @@ podTemplate(yaml: '''
   ) {
 
   node(POD_LABEL) {
-    stage('Build with Kaniko') {
-      stages {
-        stage("Checkout") {
-          checkout scm
-        }
+    stages {
+      stage("Checkout") {
+        checkout scm
+      }
 
-        stage("Prepare repo") {
-          sh "cp -r `pwd`/docker/${params.invo_version}/. `pwd`"
-        }
+      stage("Prepare repo") {
+        sh "cp -r `pwd`/docker/${params.invo_version}/. `pwd`"
+      }
 
-        stage("Build and Push") {
-          container('kaniko') {
-            sh "/kaniko/executor -f `pwd`/Dockerfile -c `pwd` --cache=true --destination=${params.docker_image}:${params.git_tag}"
-          }
+      stage("Build and Push") {
+        container('kaniko') {
+          sh "/kaniko/executor -f `pwd`/Dockerfile -c `pwd` --cache=true --destination=${params.docker_image}:${params.git_tag}"
         }
       }
     }
