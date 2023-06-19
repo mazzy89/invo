@@ -46,13 +46,19 @@ The Task definition is used as Artifact in Spinnaker to deploy the ECS Service o
 
 ## Continuous Integration
 
-The Invo application is built using Jenkins as the requirement. A `Jenkinsfile` is provided to run the build with Kaniko on a Kubernetes cluster hosted in an home lab. Kaniko is used because Jenkins runs on top of a Kubernetes cluster which nowadays do not come anymore with Docker pre-built.
+The Invo application is built using Jenkins as the specified requirement. A `Jenkinsfile` is provided to run the build with Kaniko on a Kubernetes cluster hosted in an home lab following a Declarative Pipeline approach. Kaniko is used due to the fact that Jenkins runs on top of a Kubernetes cluster which nowadays do not come anymore with Docker pre-built.
+
+![jenkins](/images/jenkins.png "Jenkins").
+
+In Jenkins we have a Job named `BuildInvoWithKaniko` started by Spinnaker which after some preparation build the Invo image and push it to the Docker Hub registry. 
 
 ## Continuous Deployment
 
 [Spinnaker](https://spinnaker.io) is used to deploy the Docker Image of Invo built with Jenkins. A Spinnaker installation is hosted in the home lab where the Jenkins is located.
 
-Thanks to Spinnaker, the blue-green deployment comes out of the box and it is possible to achieve a series of deployment mechanisms that within Jenkins would be much harder to accomplish.
+![spinnaker](/images/spinnaker.png "Spinnaker").
+
+Thanks to Spinnaker, the blue-green deployment comes out of the box and it is possible to achieve a series of deployment mechanisms that within Jenkins would be much harder to accomplish. Spinnaker provides the Highlander strategy known also as blue-green deployment that create a new ECS Service and switch traffic over.
 
 ## Access
 
@@ -62,7 +68,7 @@ Please note that this approach despite it works pretty well, it is hard to manta
 
 ## Observability
 
-The application writes logs in a CloudWatch groups and thanks to the ECS Container Insights feature, it is possible to monitor constantly the performance of the application.
+The application writes logs in a CloudWatch group that it is automatically created using the `awslogs` driver and thanks to the ECS Container Insights feature, it is possible to monitor constantly the performance of the container application.
 
 ## Run
 
@@ -90,7 +96,7 @@ terraform apply
 
 ## Improvements
 
-- In a real scenario, the Terraform would use the S3 remote storage backend.
+- In a real scenario, Terraform would use the S3 remote storage backend. In such exercise we have used the local backend.
 - A DNS name would be required in a real scenario and assigned to the Application Load Balancer.
 - If the application would be available worldwide with customers spread around the world, a CDN would be required to cache contents effectively and improve the user experience.
-- In a real scenario, production would differs from staging in terms of compute instance types. For such exercise, instance types are the same to save costs inside the AWS Cloud account used to test resources.
+- In a real scenario, production would differs from staging in terms of compute instance types of the Autoscaling Group and the Mysql database. For such exercise, instance types are the same to save costs inside the AWS Cloud account used to test resources.
