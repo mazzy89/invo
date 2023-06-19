@@ -40,7 +40,13 @@ Terraform directory which contains all the required resources to host on AWS the
 
 ## Walkthrough
 
-Terraform generates as output an ECS Task Definition JSON file one for each environment where the Invo application is deployed.
+Each environment is separated in a logical network using AWS VPC with non-overlapping CIDR block.
+
+An ECS cluster is created using Autoscaling group as capacity provider. For saving money, Spot instances have been used. ECS services are launched in the ECS cluster on top of EC2 instances managed by an Autoscaling group.
+
+An RDS Mysql database is created in a separated database subnet group.
+
+Terraform generates as output an ECS Task Definition JSON file one for each environment where the Invo application is deployed and it stores them in the repository.
 
 The Task definition is used as Artifact in Spinnaker to deploy the ECS Service on the ECS cluster.
 
@@ -100,3 +106,4 @@ terraform apply
 - A DNS name would be required in a real scenario and assigned to the Application Load Balancer.
 - If the application would be available worldwide with customers spread around the world, a CDN would be required to cache contents effectively and improve the user experience.
 - In a real scenario, production would differs from staging in terms of compute instance types of the Autoscaling Group and the Mysql database. For such exercise, instance types are the same to save costs inside the AWS Cloud account used to test resources.
+- In a real scenario, CloudWatch alerts must be created to monitor at least primary SLIs such as CPU and Memory and Health Check. In addition it should be required to instrument accordingly the application to get application metrics like requests counts, errors, etc.
