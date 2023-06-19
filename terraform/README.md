@@ -46,7 +46,9 @@ An ECS cluster is created using Autoscaling group as capacity provider. For savi
 
 An RDS Mysql database is created in a separated database subnet group.
 
-Terraform generates as output an ECS Task Definition JSON file one for each environment where the Invo application is deployed and it stores them in the repository.
+The entire application resources, except for the logical network, are self-contained in a Terraform module configurable.
+
+At the apply phase, Terraform generates as output an ECS Task Definition JSON file one for each environment where the Invo application is deployed and it stores them in the repository.
 
 The Task definition is used as Artifact in Spinnaker to deploy the ECS Service on the ECS cluster.
 
@@ -56,7 +58,9 @@ The Invo application is built using Jenkins as the specified requirement. A `Jen
 
 ![jenkins](/images/jenkins.png "Jenkins").
 
-In Jenkins we have a Job named `BuildInvoWithKaniko` started by Spinnaker which after some preparation build the Invo image and push it to the Docker Hub registry. 
+In Jenkins we have a Job named `BuildInvoWithKaniko` started by Spinnaker which after some preparation build the Invo image and push it to the Docker Hub registry.
+
+We could have added another job that would handle the ECS deployment. However ECS does not provide by default all the primitives to make a blue-green rollout. Recently AWS released a service named after this rollout strategy that it makes the rollout seamless. However Spinnaker represents an undisputed method to deploy seamless, fast and highly controllable ECS services.
 
 ## Continuous Deployment
 
