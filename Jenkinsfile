@@ -25,7 +25,7 @@ podTemplate(yaml: '''
   ) {
 
   node(POD_LABEL) {
-    stages {
+    container('kaniko') {
       stage("Checkout") {
         checkout scm
       }
@@ -35,9 +35,7 @@ podTemplate(yaml: '''
       }
 
       stage("Build and Push") {
-        container('kaniko') {
-          sh "/kaniko/executor -f `pwd`/Dockerfile -c `pwd` --cache=true --destination=${params.docker_image}:${params.git_tag}"
-        }
+        sh "/kaniko/executor -f `pwd`/Dockerfile -c `pwd` --cache=true --destination=${params.docker_image}:${params.git_tag}"
       }
     }
   }
