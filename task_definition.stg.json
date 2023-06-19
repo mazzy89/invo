@@ -1,5 +1,5 @@
 {
-  "executionRoleArn": "arn:aws:iam::264721266761:role/invo-stg-app-20230619081539181000000001",
+  "executionRoleArn": "arn:aws:iam::264721266761:role/invo-stg-app-20230619153524816200000002",
   "family": "invo",
   "networkMode": "awsvpc",
   "cpu": "256",
@@ -51,7 +51,7 @@
       "secrets": [
         {
           "name": "DB_PASSWORD",
-          "valueFrom": "arn:aws:secretsmanager:eu-central-1:264721266761:secret:/invo-stg/invo/db_master_password-qAPh6i"
+          "valueFrom": "arn:aws:secretsmanager:eu-central-1:264721266761:secret:/invo-stg/invo/db_master_password-8lL3E7"
         }
       ],
       "logConfiguration": {
