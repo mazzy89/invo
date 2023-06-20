@@ -70,6 +70,8 @@ We could have added another job that would handle the ECS deployment. However EC
 
 Thanks to Spinnaker, the blue-green deployment comes out of the box and it is possible to achieve a series of deployment mechanisms that within Jenkins would be much harder to accomplish. Spinnaker provides the Highlander strategy known also as blue-green deployment that create a new ECS Service and switch traffic over.
 
+The pipeline to deploy new releases has been provided along the repository and available [here](../pipeline.json).
+
 ## Access
 
 The access requirement is fullfilled using AWS IAM. The access to the `staging` environment is controlled assigning an IAM policy to the specific group to which the user is then added. The policy allows actions to only those resources having the tag `Environment=stg`.

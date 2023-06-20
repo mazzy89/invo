@@ -1,0 +1,309 @@
+{
+  "appConfig": {},
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "anonymous",
+  "limitConcurrent": true,
+  "parameterConfig": [
+    {
+      "default": "8.1",
+      "description": "",
+      "hasOptions": true,
+      "label": "Git Tag",
+      "name": "git_tag",
+      "options": [
+        {
+          "value": "8.0"
+        },
+        {
+          "value": "8.1"
+        }
+      ],
+      "pinned": false,
+      "required": true
+    }
+  ],
+  "schema": "1",
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "clusters": [
+        {
+          "account": "ecs",
+          "application": "invo",
+          "associatePublicIpAddress": false,
+          "availabilityZones": {
+            "eu-central-1": [
+              "eu-central-1a",
+              "eu-central-1b",
+              "eu-central-1c"
+            ]
+          },
+          "capacity": {
+            "desired": 1,
+            "max": 1,
+            "min": 1
+          },
+          "capacityProviderStrategy": [
+            {
+              "base": 0,
+              "capacityProvider": "spot-ecs-cp-stg",
+              "weight": 100
+            }
+          ],
+          "cloudProvider": "ecs",
+          "containerMappings": [
+            {
+              "containerName": "invo",
+              "imageDescription": {
+                "fromContext": true,
+                "imageId": "docker.io/mazzy/invo:${release_tag}",
+                "imageLabelOrSha": "docker.io/mazzy/invo:${release_tag}",
+                "stageId": "3"
+              }
+            }
+          ],
+          "copySourceScalingPoliciesAndActions": true,
+          "dockerImageCredentialsSecret": "None (No registry credentials)",
+          "dockerLabels": {},
+          "ecsClusterName": "invo-stg",
+          "environmentVariables": {},
+          "evaluateTaskDefinitionArtifactExpressions": true,
+          "freeFormDetails": "app",
+          "healthCheckGracePeriodSeconds": 0,
+          "healthCheckType": "EC2",
+          "iamRole": "invo-stg-app-20230619153524816200000002",
+          "launchType": "",
+          "loadBalancers": [],
+          "moniker": {
+            "app": "invo",
+            "detail": "app",
+            "stack": "stg"
+          },
+          "networkMode": "awsvpc",
+          "placementConstraints": [],
+          "placementStrategyName": "AZ Balanced Spread",
+          "placementStrategySequence": [
+            {
+              "field": "attribute:ecs.availability-zone",
+              "type": "spread"
+            },
+            {
+              "field": "instanceId",
+              "type": "spread"
+            }
+          ],
+          "preferSourceCapacity": true,
+          "provider": "ecs",
+          "securityGroupNames": [
+            "invo-stg-app-2023061915353711060000000c"
+          ],
+          "serviceDiscoveryAssociations": [],
+          "stack": "stg",
+          "strategy": "highlander",
+          "subnetType": "",
+          "subnetTypes": [
+            "invo-stg"
+          ],
+          "tags": {},
+          "targetGroup": "",
+          "targetGroupMappings": [
+            {
+              "containerName": "invo",
+              "containerPort": 80,
+              "targetGroup": "invo-stg-invo"
+            }
+          ],
+          "taskDefinitionArtifact": {
+            "artifact": {
+              "artifactAccount": "gitea",
+              "id": "624c185d-6ad6-4f06-b566-516bf8e8ae48",
+              "reference": "https://git.mazzarino.cz/salvo/invo/raw/branch/homelab/task_definition.stg.json",
+              "type": "http/file"
+            }
+          },
+          "useDefaultCapacityProviders": true,
+          "useSourceCapacity": true,
+          "useTaskDefinitionArtifact": true
+        }
+      ],
+      "name": "Deploy to stg",
+      "refId": "2",
+      "requisiteStageRefIds": [
+        "3"
+      ],
+      "type": "deploy"
+    },
+    {
+      "cloudProvider": "ecs",
+      "cloudProviderType": "ecs",
+      "imageLabelOrSha": "docker.io/mazzy/invo:${release_tag}",
+      "name": "Find Image from Tags",
+      "refId": "3",
+      "requisiteStageRefIds": [
+        "1"
+      ],
+      "type": "findImageFromTags"
+    },
+    {
+      "continuePipeline": false,
+      "failPipeline": true,
+      "job": "BuildInvoWithKaniko",
+      "master": "jenkins-k8s",
+      "name": "Build With Kaniko",
+      "parameters": {
+        "git_tag": "${release_tag}",
+        "invo_version": "8.1"
+      },
+      "propertyFile": "",
+      "refId": "1",
+      "requisiteStageRefIds": [
+        "4"
+      ],
+      "type": "jenkins"
+    },
+    {
+      "failOnFailedExpressions": true,
+      "name": "Set Release Tag",
+      "refId": "4",
+      "requisiteStageRefIds": [],
+      "type": "evaluateVariables",
+      "variables": [
+        {
+          "key": "release_tag",
+          "value": "${trigger[\"payload\"] != null ? trigger[\"payload\"][\"ref\"] : execution.trigger.parameters.git_tag}"
+        }
+      ]
+    },
+    {
+      "failPipeline": true,
+      "instructions": "Do you want to deploy to prod?",
+      "judgmentInputs": [],
+      "name": "Manual Judgment",
+      "notifications": [],
+      "refId": "5",
+      "requisiteStageRefIds": [
+        "2"
+      ],
+      "type": "manualJudgment"
+    },
+    {
+      "clusters": [
+        {
+          "account": "ecs",
+          "application": "invo",
+          "associatePublicIpAddress": false,
+          "availabilityZones": {
+            "eu-central-1": [
+              "eu-central-1a",
+              "eu-central-1b",
+              "eu-central-1c"
+            ]
+          },
+          "capacity": {
+            "desired": 3,
+            "max": 5,
+            "min": 3
+          },
+          "capacityProviderStrategy": [
+            {
+              "base": 0,
+              "capacityProvider": "spot-ecs-cp-prod",
+              "weight": 100
+            }
+          ],
+          "cloudProvider": "ecs",
+          "containerMappings": [
+            {
+              "containerName": "invo",
+              "imageDescription": {
+                "fromContext": true,
+                "imageId": "docker.io/mazzy/invo:${release_tag}",
+                "imageLabelOrSha": "docker.io/mazzy/invo:${release_tag}",
+                "stageId": "3"
+              }
+            }
+          ],
+          "copySourceScalingPoliciesAndActions": true,
+          "dockerImageCredentialsSecret": "None (No registry credentials)",
+          "dockerLabels": {},
+          "ecsClusterName": "invo-prod",
+          "environmentVariables": {},
+          "evaluateTaskDefinitionArtifactExpressions": true,
+          "freeFormDetails": "app",
+          "healthCheckGracePeriodSeconds": 0,
+          "healthCheckType": "EC2",
+          "iamRole": "invo-prod-app-20230619081701189100000002",
+          "launchType": "",
+          "loadBalancers": [],
+          "moniker": {
+            "app": "invo",
+            "detail": "app",
+            "stack": "prod"
+          },
+          "networkMode": "awsvpc",
+          "placementConstraints": [],
+          "placementStrategyName": "AZ Balanced Spread",
+          "placementStrategySequence": [
+            {
+              "field": "attribute:ecs.availability-zone",
+              "type": "spread"
+            },
+            {
+              "field": "instanceId",
+              "type": "spread"
+            }
+          ],
+          "preferSourceCapacity": true,
+          "provider": "ecs",
+          "securityGroupNames": [
+            "invo-prod-app-2023061908171629040000000a"
+          ],
+          "serviceDiscoveryAssociations": [],
+          "stack": "prod",
+          "strategy": "highlander",
+          "subnetType": "",
+          "subnetTypes": [
+            "invo-prod"
+          ],
+          "tags": {},
+          "targetGroup": "",
+          "targetGroupMappings": [
+            {
+              "containerName": "invo",
+              "containerPort": 80,
+              "targetGroup": "invo-prod-invo"
+            }
+          ],
+          "taskDefinitionArtifact": {
+            "artifact": {
+              "artifactAccount": "gitea",
+              "id": "0c9e0dd8-d338-4484-ba63-07dd3da07f81",
+              "reference": "https://git.mazzarino.cz/salvo/invo/raw/branch/homelab/task_definition.prod.json",
+              "type": "http/file"
+            }
+          },
+          "useDefaultCapacityProviders": true,
+          "useSourceCapacity": true,
+          "useTaskDefinitionArtifact": true
+        }
+      ],
+      "name": "Deploy to prod",
+      "refId": "6",
+      "requisiteStageRefIds": [
+        "5"
+      ],
+      "type": "deploy"
+    }
+  ],
+  "triggers": [
+    {
+      "enabled": true,
+      "payloadConstraints": {
+        "$.ref": "v.*"
+      },
+      "source": "invo",
+      "type": "webhook"
+    }
+  ],
+  "updateTs": "1687295548000"
+}
