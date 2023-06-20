@@ -104,6 +104,12 @@ terraform plan
 terraform apply
 ```
 
+## Release
+
+In order to create a new release and deploy a new version of the application it is enough to create a new git tag on the VCS.
+
+A Webhook is registered on Spinnaker and it will automatically start a new pipeline, building a new Docker Image with the tag as the Git tag and deploy automatically to the ECS Cluster.
+
 ## Improvements
 
 - In a real scenario, Terraform would use the S3 remote storage backend. In such exercise we have used the local backend.
@@ -111,3 +117,4 @@ terraform apply
 - If the application would be available worldwide with customers spread around the world, a CDN would be required to cache contents effectively and improve the user experience.
 - In a real scenario, production would differs from staging in terms of compute instance types of the Autoscaling Group and the Mysql database. For such exercise, instance types are the same to save costs inside the AWS Cloud account used to test resources.
 - In a real scenario, CloudWatch alerts must be created to monitor at least primary SLIs such as CPU and Memory and Health Check. In addition it should be required to instrument accordingly the application to get application metrics like requests counts, errors, etc.
+- In a real scenario, there should be implemented in CI tests to validate that the application can be shipped without issues. 
